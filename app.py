@@ -133,10 +133,14 @@ if st.button("Process Files"):
 st.header("Results")
 
 if "conversion_results" in st.session_state:
+    start_time_result = time.time()
+    st.write('starting visualization ....')
     for filename, content in st.session_state.conversion_results:
         with st.expander(f"Contents of {filename}"):
             st.text(f"Content length: {len(content)} characters")
             st.markdown(content)
+    end_time_result = time.time()
+    st.text(f"Total result visualization time: {end_time_result - start_time_result:.2f} seconds")
 else:
     st.info(
         "No processing results yet. Upload files and click 'Process Files' to see results here."
