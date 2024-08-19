@@ -53,8 +53,8 @@ def image_to_pdf(image_path, pdf_path):
     can.drawImage(img_reader, 0, 0, width=img.width, height=img.height)
     can.save()
 
-
-st.title("File Converter and Viewer")
+st.set_page_config(page_title="File Extractor and Viewer", page_icon="📂", layout="wide")
+st.title("File Extractor and Viewer")
 
 # Use session state to store uploaded files
 if "uploaded_files" not in st.session_state:
@@ -110,7 +110,6 @@ if st.button("Process Files"):
                         marker_output = run_marker(str(input_dir), str(output_dir))
                         st.text(f"Marker output: {marker_output}")
 
-                        # Read the output markdown files
                         pdf_results = read_markdown_files(output_dir)
                         results.extend(pdf_results)
                     except Exception as e:
@@ -126,8 +125,7 @@ if st.button("Process Files"):
     else:
         st.warning("Please upload files before processing.")
 
-# Results section
-st.header("Processing Results")
+st.header("Results")
 
 if "conversion_results" in st.session_state:
     for filename, content in st.session_state.conversion_results:
