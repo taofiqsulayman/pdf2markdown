@@ -8,6 +8,8 @@ from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
+import time
+
 
 def run_marker(input_folder, output_folder):
     command = f"marker {input_folder} {output_folder} --workers 2"
@@ -72,6 +74,7 @@ if uploaded_files:
 if st.button("Process Files"):
     if st.session_state.uploaded_files:
         with st.spinner("Processing files..."):
+            start_time = time.time()
             results = []
 
             # Create temporary directory for input and output
@@ -118,7 +121,9 @@ if st.button("Process Files"):
             if results:
                 # Store results in session state
                 st.session_state.conversion_results = results
+                end_time = time.time()
                 st.success("Files processed successfully!")
+                st.text(f"Total processing time: {end_time - start_time:.2f} seconds")
             else:
                 st.warning("No files were processed.")
 
