@@ -12,7 +12,7 @@ import time
 
 
 def run_marker(input_folder, output_folder):
-    command = f"marker {input_folder} {output_folder} --workers 2"
+    command = f"marker {input_folder} {output_folder} --workers 4"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     if result.returncode != 0:
         raise Exception(f"Marker command failed: {result.stderr}")
