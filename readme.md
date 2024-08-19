@@ -68,6 +68,8 @@ The File Converter and Viewer is a powerful Streamlit application that allows us
    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
    ```
 
+   ``` For specific PyTorch and related package based on your hardware, "visit: https://pytorch.org/get-started/locally/" ```
+
 5. Install marker-pdf:
    ```
    pip install marker-pdf
