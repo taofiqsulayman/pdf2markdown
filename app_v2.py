@@ -12,6 +12,7 @@ BATCH_MULTIPLIER = 4  # Adjust based on your VRAM capacity
 MAX_PAGES = None  # Set to None to process entire documents, or specify a number
 WORKERS = 1  # Since we're leveraging GPU, we'll process one file at a time
 
+
 def run_marker_on_file(input_file, output_dir):
     command = f"marker_single '{input_file}' '{output_dir}' --batch_multiplier {BATCH_MULTIPLIER}"
     if MAX_PAGES:
@@ -24,7 +25,16 @@ def run_marker_on_file(input_file, output_dir):
 
     return result.stdout
 
+
+def extract_all_files(input_dir, output_dir):
+    """Runs the marker tool on all files in the input directory."""
+    for file_path in input_dir.glob("*.pdf"):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        run_marker_on_file(file_path, output_dir)
+
+
 def read_markdown_files(folder):
+    """Reads all markdown files from the specified folder and its subdirectories."""
     markdown_files = []
     for subdir in folder.iterdir():
         if subdir.is_dir():
@@ -34,26 +44,6 @@ def read_markdown_files(folder):
                 markdown_files.append((md_file.name, content))
     return markdown_files
 
-def process_file(file_path, output_dir):
-    file_name = file_path.name
-    file_output_dir = output_dir
-    file_output_dir.mkdir(parents=True, exist_ok=True)
-
-    try:
-        # Run the marker tool on the file
-        run_marker_on_file(file_path, file_output_dir)
-
-        # Use read_markdown_files to find and read all markdown files
-        results = read_markdown_files(file_output_dir)
-
-        if results:
-            return results
-        else:
-            raise FileNotFoundError(f"Markdown file not found for {file_name}")
-
-    except Exception as e:
-        st.error(f"Error processing {file_name}: {str(e)}")
-        return [(file_name, None)]
 
 def process_files(uploaded_files):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -69,14 +59,14 @@ def process_files(uploaded_files):
             with open(file_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-        results = []
-        for file_path in input_dir.glob("*.pdf"):
-            st.write(f"Processing: {file_path.name}")
-            file_results = process_file(file_path, output_dir)
-            if file_results:
-                results.extend(file_results)
+        # Step 1: Run marker on all files
+        extract_all_files(input_dir, output_dir)
+
+        # Step 2: Read all markdown files from the output directory
+        results = read_markdown_files(output_dir)
 
         return results
+
 
 # Streamlit app setup and logic
 st.set_page_config(
@@ -120,8 +110,12 @@ if "conversion_results" in st.session_state:
             st.text(f"Content length: {len(content)} characters")
             st.markdown(content)
     end_time_result = time.time()
-    st.text(f"Total result visualization time: {end_time_result - start_time_result:.2f} seconds")
+    st.text(
+        f"Total result visualization time: {end_time_result - start_time_result:.2f} seconds"
+    )
 else:
-    st.info("No processing results yet. Upload files and click 'Process Files' to see results here.")
+    st.info(
+        "No processing results yet. Upload files and click 'Process Files' to see results here."
+    )
 
 st.write("Upload files and click 'Process Files' to convert or view them.")
