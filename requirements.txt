@@ -8,3 +8,4 @@ marker-pdf
 torch
 torchvision
 torchaudio
+pypdf2
