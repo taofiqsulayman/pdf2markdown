@@ -4,9 +4,11 @@ from pathlib import Path
 import tempfile
 import pandas as pd
 from docx import Document
+import docx
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+import os
 
 import time
 
@@ -43,9 +45,18 @@ def process_excel(file):
 def process_word(file):
     doc = Document(file)
     full_text = []
+
+    # Extract text from paragraphs
     for para in doc.paragraphs:
         full_text.append(para.text)
-    return "\n\n".join(full_text)
+
+    # Extract text from tables
+    for table in doc.tables:
+        for row in table.rows:
+            row_data = [cell.text for cell in row.cells]
+            full_text.append("\t".join(row_data))  # Join cell data with a tab for better readability
+
+    return "\n".join(full_text)
 
 
 def image_to_pdf(image_path, pdf_path):
@@ -65,7 +76,7 @@ if "uploaded_files" not in st.session_state:
 uploaded_files = st.file_uploader(
     "Choose files",
     accept_multiple_files=True,
-    type=["pdf", "csv", "xlsx", "docx", "jpg", "jpeg", "png"],
+    type=["pdf", "csv", "xlsx", "docx", "doc", "jpg", "jpeg", "png"],
 )
 
 if uploaded_files:
