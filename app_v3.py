@@ -1,11 +1,9 @@
 import streamlit as st
-from concurrent.futures import ProcessPoolExecutor
 import subprocess
 from pathlib import Path
 import time
 import tempfile
 import os
-import json
 from PyPDF2 import PdfReader, PdfWriter
 import uuid
 import shutil
@@ -19,7 +17,6 @@ CHUNK_SIZE = 20  # Number of pages per chunk
 
 def split_pdf(input_pdf_path, output_dir, chunk_size=CHUNK_SIZE):
     input_pdf = PdfReader(str(input_pdf_path))
-    file_name = input_pdf_path.stem
     file_id = str(uuid.uuid4())
     pdf_chunks = []
 
@@ -142,9 +139,6 @@ def process_files(uploaded_files):
 
         return results
 
-
-# Streamlit app setup and logic (unchanged)
-# ... (rest of the Streamlit code remains the same)
 
 # Streamlit app setup and logic
 st.set_page_config(
