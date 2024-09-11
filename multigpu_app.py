@@ -123,7 +123,7 @@ if st.button("Process Files"):
                         marker_output = run_marker(
                             input_folder=str(input_dir),
                             output_folder=str(output_dir),
-                            min_length=10000,  # Minimum characters to consider
+                            min_length=0,  # Minimum characters to consider
                             num_devices=4,     # Number of GPUs
                             num_workers=15,    # Number of workers per GPU
                             # metadata_file="../pdf_meta.json"  # Optional metadata file
