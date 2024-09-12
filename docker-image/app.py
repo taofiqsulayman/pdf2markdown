@@ -55,7 +55,7 @@ def process_excel(file):
 
 def process_word(file_path):
     document = Document()
-    document.LoadFromFile(str(file_path))
+    document.LoadFromFile(file_path)
     return document.GetText()
 
 
@@ -87,64 +87,110 @@ if st.button("Process Files"):
     if st.session_state.uploaded_files:
         with st.spinner("Processing files..."):
             start_time = time.time()
+            # results = []
+
+            # # Create temporary directory for input and output
+            # with tempfile.TemporaryDirectory() as temp_dir:
+            #     input_dir = Path(temp_dir) / "input"
+            #     output_dir = Path(temp_dir) / "output"
+            #     input_dir.mkdir()
+            #     output_dir.mkdir()
+
+            #     for uploaded_file in st.session_state.uploaded_files:
+            #         if uploaded_file.name.endswith((".pdf", ".jpg", ".jpeg", ".png")):
+            #             # Save file to temporary input directory
+            #             file_path = input_dir / uploaded_file.name
+            #             with open(file_path, "wb") as f:
+            #                 f.write(uploaded_file.getbuffer())
+
+            #             # Convert image to PDF if necessary
+            #             if file_path.suffix.lower() in (".jpg", ".jpeg", ".png"):
+            #                 pdf_path = file_path.with_suffix(".pdf")
+            #                 image_to_pdf(str(file_path), str(pdf_path))
+            #                 file_path.unlink()  # Remove original image file
+
+            #         elif uploaded_file.name.endswith(".csv"):
+            #             results.append((uploaded_file.name, process_csv(uploaded_file)))
+            #         elif uploaded_file.name.endswith(".xlsx"):
+            #             results.append((uploaded_file.name, process_excel(uploaded_file)))
+            #         elif uploaded_file.name.endswith(".docx") or uploaded_file.name.endswith(".doc"):
+            #             results.append((uploaded_file.name, process_word(uploaded_file)))
+
+            #     # Process PDFs (including converted images)
+            #     if list(input_dir.glob("*.pdf")):
+            #         try:
+            #             # Call the marker processing function with multiple GPUs
+            #             marker_output = run_marker(
+            #                 input_folder=str(input_dir),
+            #                 output_folder=str(output_dir),
+            #                 min_length=0,  # Minimum characters to consider
+            #                 num_devices=4,     # Number of GPUs
+            #                 num_workers=15,    # Number of workers per GPU
+            #                 # metadata_file="../pdf_meta.json"  # Optional metadata file
+            #             )
+            #             st.text(f"Marker output: {marker_output}")
+
+            #             pdf_results = read_markdown_files(output_dir)
+            #             results.extend(pdf_results)
+            #         except Exception as e:
+            #             st.error(f"An error occurred during PDF conversion: {str(e)}")
+            
+            input_dir = Path("./input")
+            output_dir = Path("./output")
+            input_dir.mkdir(parents=True, exist_ok=True)
+            output_dir.mkdir(parents=True, exist_ok=True)
+
             results = []
 
-            # Create temporary directory for input and output
-            with tempfile.TemporaryDirectory() as temp_dir:
-                input_dir = Path(temp_dir) / "input"
-                output_dir = Path(temp_dir) / "output"
-                input_dir.mkdir()
-                output_dir.mkdir()
+            for uploaded_file in st.session_state.uploaded_files:
+                if uploaded_file.name.endswith((".pdf", ".jpg", ".jpeg", ".png")):
+                    # Save file to permanent input directory
+                    file_path = input_dir / uploaded_file.name
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
 
-                for uploaded_file in st.session_state.uploaded_files:
-                    if uploaded_file.name.endswith((".pdf", ".jpg", ".jpeg", ".png")):
-                        # Save file to temporary input directory
-                        file_path = input_dir / uploaded_file.name
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
+                    # Convert image to PDF if necessary
+                    if file_path.suffix.lower() in (".jpg", ".jpeg", ".png"):
+                        pdf_path = file_path.with_suffix(".pdf")
+                        image_to_pdf(str(file_path), str(pdf_path))
+                        file_path.unlink()  # Remove original image file
 
-                        # Convert image to PDF if necessary
-                        if file_path.suffix.lower() in (".jpg", ".jpeg", ".png"):
-                            pdf_path = file_path.with_suffix(".pdf")
-                            image_to_pdf(str(file_path), str(pdf_path))
-                            file_path.unlink()  # Remove original image file
+                elif uploaded_file.name.endswith(".csv"):
+                    results.append((uploaded_file.name, process_csv(uploaded_file)))
+                elif uploaded_file.name.endswith(".xlsx"):
+                    results.append((uploaded_file.name, process_excel(uploaded_file)))
+                elif uploaded_file.name.endswith(".docx") or uploaded_file.name.endswith(".doc"):
+                    results.append((uploaded_file.name, process_word(uploaded_file)))
 
-                    elif uploaded_file.name.endswith(".csv"):
-                        results.append((uploaded_file.name, process_csv(uploaded_file)))
-                    elif uploaded_file.name.endswith(".xlsx"):
-                        results.append((uploaded_file.name, process_excel(uploaded_file)))
-                    elif uploaded_file.name.endswith(".docx") or uploaded_file.name.endswith(".doc"):
-                        results.append((uploaded_file.name, process_word(uploaded_file)))
+            # Process PDFs (including converted images)
+            if list(input_dir.glob("*.pdf")):
+                try:
+                    # Call the marker processing function with multiple GPUs
+                    marker_output = run_marker(
+                        input_folder=str(input_dir),
+                        output_folder=str(output_dir),
+                        min_length=0,  # Minimum characters to consider
+                        num_devices=4,     # Number of GPUs
+                        num_workers=15,    # Number of workers per GPU
+                        # metadata_file="../pdf_meta.json"  # Optional metadata file
+                    )
+                    st.text(f"Marker output: {marker_output}")
 
-                # Process PDFs (including converted images)
-                if list(input_dir.glob("*.pdf")):
-                    try:
-                        # Call the marker processing function with multiple GPUs
-                        marker_output = run_marker(
-                            input_folder=str(input_dir),
-                            output_folder=str(output_dir),
-                            min_length=0,  # Minimum characters to consider
-                            num_devices=4,     # Number of GPUs
-                            num_workers=15,    # Number of workers per GPU
-                            # metadata_file="../pdf_meta.json"  # Optional metadata file
-                        )
-                        st.text(f"Marker output: {marker_output}")
+                    pdf_results = read_markdown_files(output_dir)
+                    results.extend(pdf_results)
+                except Exception as e:
+                    st.error(f"An error occurred during PDF conversion: {str(e)}")
 
-                        pdf_results = read_markdown_files(output_dir)
-                        results.extend(pdf_results)
-                    except Exception as e:
-                        st.error(f"An error occurred during PDF conversion: {str(e)}")
-
-            if results:
-                # Store results in session state
-                st.session_state.conversion_results = results
-                end_time = time.time()
-                st.success("Files processed successfully!")
-                st.text(f"Total processing time: {end_time - start_time:.2f} seconds")
+                    if results:
+                        # Store results in session state
+                        st.session_state.conversion_results = results
+                        end_time = time.time()
+                        st.success("Files processed successfully!")
+                        st.text(f"Total processing time: {end_time - start_time:.2f} seconds")
+                    else:
+                        st.warning("No files were processed.")
             else:
-                st.warning("No files were processed.")
-    else:
-        st.warning("Please upload files before processing.")
+                st.warning("Please upload files before processing.")
 
 st.header("Results")
 
