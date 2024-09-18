@@ -109,7 +109,6 @@ if st.button("Process Files"):
                 output_dir.mkdir(parents=True, exist_ok=True)
                                 
                 input_dir.mkdir()
-                output_dir.mkdir()
 
                 for uploaded_file in st.session_state.uploaded_files:
                     if uploaded_file.name.endswith((".pdf", ".jpg", ".jpeg", ".png")):
