@@ -8,6 +8,7 @@ from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import time
+import os
 
 
 def run_marker(input_folder, output_folder, min_length=10000, num_devices=4, num_workers=15, metadata_file=None):
@@ -92,7 +93,11 @@ if st.button("Process Files"):
             # Create temporary directory for input and output
             with tempfile.TemporaryDirectory() as temp_dir:
                 input_dir = Path(temp_dir) / "input"
-                output_dir = Path(temp_dir) / "output"
+                output_dir = Path("./output")
+                output_dir.mkdir(parents=True, exist_ok=True)
+                
+                os.chmod(str(output_dir), 0o777)
+                
                 input_dir.mkdir()
                 output_dir.mkdir()
 
