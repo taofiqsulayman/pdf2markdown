@@ -10,6 +10,18 @@ from reportlab.lib.utils import ImageReader
 import time
 import os
 
+def set_permissions(path):
+    for root, dirs, files in os.walk(path):
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            os.chmod(dir_path, 0o777)  # or 0o755
+        for file in files:
+            file_path = os.path.join(root, file)
+            os.chmod(file_path, 0o666)  # or 0o644
+
+set_permissions('./uploads')
+set_permissions('./output')
+
 
 def run_marker(input_folder, output_folder, min_length=10000, num_devices=4, num_workers=15, metadata_file=None):
     # Build the command with environment variables in the specified format
@@ -95,9 +107,7 @@ if st.button("Process Files"):
                 input_dir = Path(temp_dir) / "input"
                 output_dir = Path("./output")
                 output_dir.mkdir(parents=True, exist_ok=True)
-                
-                os.chmod(str(output_dir), 0o777)
-                
+                                
                 input_dir.mkdir()
                 output_dir.mkdir()
 
