@@ -9,6 +9,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 import time
 import os
+import shutil
 
 def set_permissions(path):
     for root, dirs, files in os.walk(path):
@@ -21,6 +22,14 @@ def set_permissions(path):
 
 set_permissions('./uploads')
 set_permissions('./output')
+
+# # clear the content of output folder everytime the app launches
+# for root, dirs, files in os.walk('./output'):
+#     for f in files:
+#         os.unlink(os.path.join(root, f))
+#     for d in dirs:
+#         shutil.rmtree(os.path.join(root, d))
+        
 
 
 def run_marker(input_folder, output_folder, min_length=10000, num_devices=4, num_workers=15, metadata_file=None):
@@ -139,13 +148,16 @@ if st.button("Process Files"):
                             output_folder=str(output_dir),
                             min_length=0,  # Minimum characters to consider
                             num_devices=4,     # Number of GPUs
-                            num_workers=15,    # Number of workers per GPU
+                            num_workers=10,    # Number of workers per GPU
                             # metadata_file="../pdf_meta.json"  # Optional metadata file
                         )
                         st.text(f"Marker output: {marker_output}")
 
                         pdf_results = read_markdown_files(output_dir)
                         results.extend(pdf_results)
+                        
+                        # clear output_dir
+                        shutil.rmtree(output_dir)
                     except Exception as e:
                         st.error(f"An error occurred during PDF conversion: {str(e)}")
 
