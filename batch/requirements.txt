@@ -1,0 +1,11 @@
+streamlit
+pandas
+openpyxl
+python-docx
+Pillow
+reportlab
+marker-pdf
+torch
+torchvision
+torchaudio
+pypdf2
